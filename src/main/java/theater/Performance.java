@@ -5,11 +5,27 @@ package theater;
  */
 public class Performance {
 
-    public String playID;
-    public int audience;
+    private String playID;
+    private int audience;
 
     public Performance(String playID, int audience) {
         this.playID = playID;
+        this.audience = audience;
+    }
+
+    String getPlayID() {
+        return playID;
+    }
+
+    int getAudience() {
+        return audience;
+    }
+
+    void setPlayId(String playI) {
+        this.playID = playI;
+    }
+
+    void setAudience(int audience) {
         this.audience = audience;
     }
 }
