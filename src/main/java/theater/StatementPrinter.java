@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public class StatementPrinter {
     private Invoice invoice;
-    private static Map<String, Play> plays;
+    private Map<String, Play> plays;
 
     public StatementPrinter(Invoice invoice, Map<String, Play> plays) {
         this.invoice = invoice;
@@ -38,28 +38,45 @@ public class StatementPrinter {
      * @throws RuntimeException if one of the play types is not known
      */
     public String statement() {
-        int totalAmount = 0;
-        int volumeCredits = 0;
+
         final StringBuilder result = new StringBuilder("Statement for "
                 + invoice.getCustomer() + System.lineSeparator());
-
         for (Performance performance : invoice.getPerformances()) {
             final Play play = getPlay(performance);
 
             int thisAmount = 0;
             thisAmount = getThisAmount(performance);
 
-            // add volume credits
-            volumeCredits += getVolumeCredits(performance, play);
-
             // print line for this order
             result.append(String.format("  %s: %s (%s seats)%n", play.getName(),
                     usd(thisAmount), performance.getAudience()));
+        }
+
+        result.append(String.format("Amount owed is %s%n", usd(getTotalAmount())));
+        result.append(String.format("You earned %s credits%n", getTotalVolumeCredits()));
+        return result.toString();
+    }
+
+    private int getTotalAmount() {
+        int totalAmount = 0;
+        for (Performance performance : invoice.getPerformances()) {
+            int thisAmount = 0;
+            thisAmount = getThisAmount(performance);
+
             totalAmount += thisAmount;
         }
-        result.append(String.format("Amount owed is %s%n", usd(totalAmount)));
-        result.append(String.format("You earned %s credits%n", volumeCredits));
-        return result.toString();
+        return totalAmount;
+    }
+
+    private int getTotalVolumeCredits() {
+        int result = 0;
+        for (Performance performance : invoice.getPerformances()) {
+            final Play play = getPlay(performance);
+
+            // add volume credits
+            result += getVolumeCredits(performance, play);
+        }
+        return result;
     }
 
     private static String usd(int totalAmount) {
